@@ -31,6 +31,16 @@
   }
 }
 
+/* Theme variables. The values here are the default ("cosy") theme; lib/themes.ts replaces them. */
+:root {
+  --room-bg: #2a1f1a;
+  --glow-1: 240 175 85;
+  --glow-2: 91 143 217;
+  --glow-3: 217 105 74;
+  --plank-top: #9a7351;
+  --plank-bottom: #5d412d;
+}
+
 body {
   margin: 0;
   background: var(--color-wall);
@@ -58,6 +68,37 @@ body {
   animation: spin 6s linear infinite;
 }
 
+@keyframes print-out {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+/* The paper feeds out in small steps, like a real printer's roller. */
+.print-out {
+  animation: print-out 3.6s steps(36, end) both;
+}
+
+@keyframes printer-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-0.6px);
+  }
+  75% {
+    transform: translateX(0.6px);
+  }
+}
+
+.printer-run {
+  animation: printer-shake 0.14s linear infinite;
+}
+
 .group:hover .reel-hover {
   animation: spin 2.5s linear infinite;
 }
@@ -70,6 +111,8 @@ body {
   .reel,
   .reel-hover,
   .group:hover .reel-hover,
+  .print-out,
+  .printer-run,
   .float {
     animation: none;
   }

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { ArrowLeft, Loader2, Search, Send } from 'lucide-react'
 import { searchSongs, type SongResult } from '../lib/itunes'
 import { addSongPost } from '../lib/posts'
@@ -10,6 +10,9 @@ interface Props {
   onDone: () => void
   onClose: () => void
 }
+
+const AUTO_MIN_LETTERS = 3
+const TYPING_PAUSE_MS = 700
 
 function Art({ url, size }: { url: string | null; size: number }) {
   return url ? (
@@ -39,26 +42,41 @@ export function SongSearch({ roomId, onDone, onClose }: Props) {
   const [sending, setSending] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    if (!query.trim()) return
+  const controllerRef = useRef<AbortController | null>(null)
+  const lastTermRef = useRef('')
+
+  // Searches once per distinct text, and cancels an older search still in flight.
+  const run = useCallback(async (term: string) => {
+    const q = term.trim()
+    if (!q || q.toLowerCase() === lastTermRef.current) return
+    lastTermRef.current = q.toLowerCase()
+    controllerRef.current?.abort()
     const controller = new AbortController()
-    const timer = setTimeout(async () => {
-      setSearching(true)
-      setError(null)
-      try {
-        setResults(await searchSongs(query, controller.signal))
-      } catch (err) {
-        if (!controller.signal.aborted)
-          setError(err instanceof Error ? err.message : 'Search failed. Try again.')
-      } finally {
-        if (!controller.signal.aborted) setSearching(false)
+    controllerRef.current = controller
+    setSearching(true)
+    setError(null)
+    try {
+      setResults(await searchSongs(q, controller.signal))
+    } catch (err) {
+      if (!controller.signal.aborted) {
+        lastTermRef.current = '' // allow a retry of the same text
+        setError(err instanceof Error ? err.message : 'Search failed. Try again.')
       }
-    }, 400)
-    return () => {
-      clearTimeout(timer)
-      controller.abort()
+    } finally {
+      if (!controller.signal.aborted) setSearching(false)
     }
-  }, [query])
+  }, [])
+
+  // Search while typing only from 3 letters on, and only after a pause. Shorter names
+  // (like "Tum" is fine, "Ae" is not) can be searched by pressing Enter.
+  useEffect(() => {
+    const q = query.trim()
+    if (q.length < AUTO_MIN_LETTERS) return
+    const timer = setTimeout(() => run(q), TYPING_PAUSE_MS)
+    return () => clearTimeout(timer)
+  }, [query, run])
+
+  useEffect(() => () => controllerRef.current?.abort(), [])
 
   async function send() {
     if (!picked) return
@@ -77,7 +95,13 @@ export function SongSearch({ roomId, onDone, onClose }: Props) {
     <PaperPanel title={picked ? 'add your note' : 'dedicate a song'} onClose={onClose}>
       {!picked ? (
         <>
-          <div className="relative">
+          <form
+            className="relative"
+            onSubmit={(e) => {
+              e.preventDefault()
+              run(query)
+            }}
+          >
             <Search
               size={18}
               aria-hidden="true"
@@ -98,7 +122,12 @@ export function SongSearch({ roomId, onDone, onClose }: Props) {
                 className="absolute top-1/2 right-4 -translate-y-1/2 animate-spin text-ink-dark/50"
               />
             )}
-          </div>
+          </form>
+          {query.trim().length > 0 && query.trim().length < AUTO_MIN_LETTERS && !searching && (
+            <p className="font-body text-xs text-ink-dark/55">
+              Keep typing, or press Enter to search for a short name.
+            </p>
+          )}
           <ErrorText message={error} />
           {query.trim() && !searching && results.length === 0 && !error && (
             <p className="text-center font-body text-sm text-ink-dark/60">

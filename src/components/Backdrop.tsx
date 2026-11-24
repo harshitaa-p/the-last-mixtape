@@ -1,5 +1,5 @@
-// Shared page background. 'night' = navy glow with a dot grid (sign-in, profile).
-// 'warm' = a soft lamp glow on a dark brown wall (inside the app).
+// Shared page background. 'night' = soft glows with a dot grid (sign-in, profile).
+// 'warm' = a lamp glow on the room wall (inside the app). Colours come from the chosen theme.
 export function Backdrop({ tone = 'night' }: { tone?: 'night' | 'warm' }) {
   if (tone === 'warm') {
     return (
@@ -8,7 +8,7 @@ export function Backdrop({ tone = 'night' }: { tone?: 'night' | 'warm' }) {
         className="pointer-events-none absolute inset-0"
         style={{
           background:
-            'radial-gradient(52rem 24rem at 50% -10%, rgba(255,190,100,0.16), transparent 65%), radial-gradient(40rem 24rem at 100% 100%, rgba(217,105,74,0.08), transparent 60%)',
+            'radial-gradient(52rem 24rem at 50% -10%, rgb(var(--glow-1) / 0.16), transparent 65%), radial-gradient(40rem 24rem at 100% 100%, rgb(var(--glow-3) / 0.09), transparent 60%)',
         }}
       />
     )
@@ -20,7 +20,7 @@ export function Backdrop({ tone = 'night' }: { tone?: 'night' | 'warm' }) {
         className="pointer-events-none absolute inset-0"
         style={{
           background:
-            'radial-gradient(60rem 30rem at 20% -10%, rgba(232,162,74,0.22), transparent 60%), radial-gradient(50rem 30rem at 100% 100%, rgba(91,143,217,0.18), transparent 60%)',
+            'radial-gradient(60rem 30rem at 20% -10%, rgb(var(--glow-1) / 0.22), transparent 60%), radial-gradient(50rem 30rem at 100% 100%, rgb(var(--glow-2) / 0.18), transparent 60%)',
         }}
       />
       <div

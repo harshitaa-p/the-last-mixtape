@@ -1,14 +1,15 @@
-import { Camera, Mic, Music, Pause, Play, ScrollText, Users } from 'lucide-react'
+import { Camera, Film, Mic, Music, Pause, Play, ScrollText, Users } from 'lucide-react'
 import type { DeckState } from './deck/useDeck'
 
-export type ViewKey = 'song' | 'photo' | 'voice' | 'note' | 'people'
+export type ViewKey = 'song' | 'photo' | 'booth' | 'voice' | 'note' | 'people'
 
-const ITEMS: { key: ViewKey; label: string; icon: typeof Music }[] = [
-  { key: 'song', label: 'songs', icon: Music },
-  { key: 'photo', label: 'photos', icon: Camera },
-  { key: 'voice', label: 'voice notes', icon: Mic },
-  { key: 'note', label: 'notes', icon: ScrollText },
-  { key: 'people', label: 'people', icon: Users },
+const ITEMS: { key: ViewKey; label: string; icon: typeof Music; counted: boolean }[] = [
+  { key: 'song', label: 'songs', icon: Music, counted: true },
+  { key: 'photo', label: 'photos', icon: Camera, counted: true },
+  { key: 'booth', label: 'photo booth', icon: Film, counted: false },
+  { key: 'voice', label: 'voice notes', icon: Mic, counted: true },
+  { key: 'note', label: 'notes', icon: ScrollText, counted: true },
+  { key: 'people', label: 'people', icon: Users, counted: true },
 ]
 
 export function SpaceNav({
@@ -29,7 +30,7 @@ export function SpaceNav({
         aria-label="space sections"
         className="-mx-6 flex gap-2 overflow-x-auto px-6 pb-1 md:mx-0 md:flex-col md:overflow-visible md:px-0 md:pb-0"
       >
-        {ITEMS.map(({ key, label, icon: Icon }) => (
+        {ITEMS.map(({ key, label, icon: Icon, counted }) => (
           <button
             key={key}
             type="button"
@@ -43,9 +44,11 @@ export function SpaceNav({
           >
             <Icon size={18} aria-hidden="true" />
             <span className="md:flex-1 md:text-left">{label}</span>
-            <span className={`font-type text-xs ${view === key ? 'text-ink-dark/60' : 'opacity-70'}`}>
-              {counts[key]}
-            </span>
+            {counted && (
+              <span className={`font-type text-xs ${view === key ? 'text-ink-dark/60' : 'opacity-70'}`}>
+                {counts[key]}
+              </span>
+            )}
           </button>
         ))}
       </nav>

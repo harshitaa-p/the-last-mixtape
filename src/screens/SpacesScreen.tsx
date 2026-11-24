@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { Heart, KeyRound, LogOut, Minus, Music2, Pencil, Plus, Star, Users } from 'lucide-react'
+import { KeyRound, LogOut, Minus, Pencil, Plus, Users } from 'lucide-react'
+import { useTheme } from '../lib/themes'
 import { Cassette } from '../components/Cassette'
 import { Avatar } from '../lib/avatars'
 import { supabase } from '../lib/supabase'
@@ -30,7 +31,7 @@ function tapeFor(id: string) {
 }
 
 const PLANK =
-  'h-3 w-[calc(100%+1rem)] rounded-sm bg-gradient-to-b from-[#9a7351] to-[#5d412d] shadow-[0_12px_16px_rgba(0,0,0,0.5)]'
+  'h-3 w-[calc(100%+1rem)] rounded-sm bg-gradient-to-b from-[var(--plank-top)] to-[var(--plank-bottom)] shadow-[0_12px_16px_rgba(0,0,0,0.5)]'
 
 interface Props {
   profile: Profile
@@ -39,6 +40,7 @@ interface Props {
 }
 
 export function SpacesScreen({ profile, onOpen, onEditProfile }: Props) {
+  const theme = useTheme()
   const [spaces, setSpaces] = useState<Space[] | null>(null)
   const [counts, setCounts] = useState<Record<string, number>>({})
   const [name, setName] = useState('')
@@ -76,8 +78,14 @@ export function SpacesScreen({ profile, onOpen, onEditProfile }: Props) {
     }
   }
 
+  function focusNewSpace() {
+    const field = document.getElementById('new-space-name')
+    field?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    field?.focus({ preventScroll: true })
+  }
+
   return (
-    <Screen wide warm>
+    <Screen xl warm>
       <div className="flex items-center justify-between">
         <button
           type="button"
@@ -99,51 +107,30 @@ export function SpacesScreen({ profile, onOpen, onEditProfile }: Props) {
       </div>
 
       <header className="relative py-4 text-center">
-        <Star
-          aria-hidden="true"
-          fill="currentColor"
-          size={26}
-          className="absolute top-2 left-[10%] rotate-12 text-amber"
-        />
-        <Heart
-          aria-hidden="true"
-          fill="currentColor"
-          size={22}
-          className="absolute top-10 right-[12%] -rotate-12 text-[#e0708f]"
-        />
-        <Music2
-          aria-hidden="true"
-          size={26}
-          className="absolute bottom-0 left-[18%] -rotate-6 text-[#4aa3a0]"
-        />
-        <Star
-          aria-hidden="true"
-          fill="currentColor"
-          size={16}
-          className="absolute right-[24%] bottom-2 rotate-6 text-[#f3c9a6]"
-        />
+        <span aria-hidden="true" className="absolute top-2 left-[10%] rotate-12 text-3xl">
+          {theme.decor[0]}
+        </span>
+        <span aria-hidden="true" className="absolute top-10 right-[12%] -rotate-12 text-2xl">
+          {theme.decor[1]}
+        </span>
+        <span aria-hidden="true" className="absolute bottom-0 left-[18%] -rotate-6 text-3xl">
+          {theme.decor[2]}
+        </span>
+        <span aria-hidden="true" className="absolute right-[24%] bottom-2 rotate-6 text-xl">
+          {theme.decor[3]}
+        </span>
         <p className="font-type text-xs tracking-[0.3em] text-amber uppercase">welcome back</p>
         <h1 className="mt-2 font-hand text-6xl text-ink sm:text-7xl">hey, {profile.display_name}</h1>
         <p className="mt-2 font-body text-sm text-ink-soft">pick a tape from your shelf</p>
       </header>
 
-      <section aria-label="your spaces">
+      <section aria-label="your shelf">
         {spaces === null && (
           <p className="text-center font-type text-xs text-ink-soft">loading…</p>
         )}
 
-        {spaces?.length === 0 && (
-          <div className="flex flex-col items-center px-2">
-            <div className="flex h-40 w-full max-w-xs flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-white/25 text-ink-soft">
-              <Plus aria-hidden="true" />
-              <p className="px-6 text-center font-body text-sm">your first tape goes here</p>
-            </div>
-            <div className={`-mt-1 ${PLANK}`} />
-          </div>
-        )}
-
-        {spaces && spaces.length > 0 && (
-          <ul className="grid gap-x-4 gap-y-10 sm:grid-cols-2 md:grid-cols-3">
+        {spaces && (
+          <ul className="grid gap-x-5 gap-y-12 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
             {spaces.map((space, i) => {
               const tape = tapeFor(space.id)
               return (
@@ -173,13 +160,43 @@ export function SpacesScreen({ profile, onOpen, onEditProfile }: Props) {
                 </li>
               )
             })}
+            {/* Empty slots keep the shelf looking full, and they show where the next tape goes. */}
+            {Array.from({ length: Math.max(0, 5 - spaces.length) }, (_, j) => {
+              const k = spaces.length + j
+              const show =
+                k < 1
+                  ? 'flex'
+                  : k < 2
+                    ? 'hidden sm:flex'
+                    : k < 3
+                      ? 'hidden md:flex'
+                      : k < 4
+                        ? 'hidden xl:flex'
+                        : 'hidden 2xl:flex'
+              return (
+                <li key={`slot-${j}`} className={`${show} flex-col items-center px-2`}>
+                  <button
+                    type="button"
+                    onClick={focusNewSpace}
+                    className="flex aspect-[8/5] w-full max-w-[18rem] flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-white/20 text-ink-soft transition-colors hover:border-amber/60 hover:text-ink"
+                  >
+                    <Plus aria-hidden="true" />
+                    <span className="font-body text-xs">
+                      {spaces.length === 0 && j === 0 ? 'your first tape goes here' : 'room for another tape'}
+                    </span>
+                  </button>
+                  <div className={`-mt-2 ${PLANK}`} />
+                  <div className="mt-3 h-4" aria-hidden="true" />
+                </li>
+              )
+            })}
           </ul>
         )}
       </section>
 
       <h2 className="mt-4 text-center font-hand text-4xl text-ink">add to the shelf</h2>
 
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="mx-auto grid w-full max-w-4xl gap-6 md:grid-cols-2">
         <form
           onSubmit={(e) => {
             e.preventDefault()
@@ -194,7 +211,7 @@ export function SpacesScreen({ profile, onOpen, onEditProfile }: Props) {
           <div aria-hidden="true" className="absolute inset-y-0 left-9 w-px bg-rust/40" />
           <div aria-hidden="true" className="absolute top-2 left-0 flex w-full justify-around px-6">
             {Array.from({ length: 8 }, (_, n) => (
-              <span key={n} className="h-3 w-3 rounded-full bg-[#2a1f1a] shadow-inner" />
+              <span key={n} className="h-3 w-3 rounded-full bg-[var(--room-bg)] shadow-inner" />
             ))}
           </div>
           <h3 className="font-hand text-3xl">start a new space</h3>
@@ -207,6 +224,7 @@ export function SpacesScreen({ profile, onOpen, onEditProfile }: Props) {
               onChange={(e) => setName(e.target.value)}
               maxLength={60}
               placeholder="e.g. Besties, Trio, College gang"
+              id="new-space-name"
               aria-label="space name"
               className={paperFieldCls.replace('pl-11', 'pl-4')}
             />
@@ -245,15 +263,15 @@ export function SpacesScreen({ profile, onOpen, onEditProfile }: Props) {
             e.preventDefault()
             run(() => joinSpace(code))
           }}
-          className="relative flex rotate-1 flex-col rounded-xl bg-[#f1d9a8] px-7 py-6 text-ink-dark shadow-[0_20px_40px_rgba(0,0,0,0.45)]"
+          className="relative flex rotate-1 flex-col rounded-xl bg-[color-mix(in_srgb,var(--color-amber)_32%,var(--color-paper))] px-7 py-6 text-ink-dark shadow-[0_20px_40px_rgba(0,0,0,0.45)]"
         >
           <span
             aria-hidden="true"
-            className="absolute top-1/2 -left-3 h-6 w-6 -translate-y-1/2 rounded-full bg-[#2a1f1a]"
+            className="absolute top-1/2 -left-3 h-6 w-6 -translate-y-1/2 rounded-full bg-[var(--room-bg)]"
           />
           <span
             aria-hidden="true"
-            className="absolute top-1/2 -right-3 h-6 w-6 -translate-y-1/2 rounded-full bg-[#2a1f1a]"
+            className="absolute top-1/2 -right-3 h-6 w-6 -translate-y-1/2 rounded-full bg-[var(--room-bg)]"
           />
           <p className="font-type text-[10px] tracking-[0.35em] text-ink-dark/60 uppercase">
             admit one

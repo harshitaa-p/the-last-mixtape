@@ -33,6 +33,20 @@ export async function getProfile(userId: string): Promise<Profile | null> {
   )
 }
 
+// Loads the profile. If the login has expired, it asks for a fresh one once and tries again, so
+// an expired login is never mistaken for "no profile yet".
+export async function loadProfile(userId: string): Promise<Profile | null> {
+  try {
+    return await getProfile(userId)
+  } catch (err) {
+    if (err instanceof Error && /jwt|expired/i.test(err.message)) {
+      const { error } = await supabase.auth.refreshSession()
+      if (!error) return getProfile(userId)
+    }
+    throw err
+  }
+}
+
 export async function saveProfile(profile: Profile) {
   check(await supabase.from('profiles').upsert(profile))
 }

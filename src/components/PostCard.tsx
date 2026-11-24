@@ -56,7 +56,7 @@ function Byline({
 export function PhotoTile(props: CardProps) {
   const { post, mediaUrl, authorName } = props
   return (
-    <li className="rounded-xl bg-paper p-3 pb-4 text-ink-dark shadow-[0_12px_26px_rgba(0,0,0,0.4)]">
+    <li className="mb-4 break-inside-avoid rounded-xl bg-paper p-3 pb-4 text-ink-dark shadow-[0_12px_26px_rgba(0,0,0,0.4)]">
       <a
         href={mediaUrl}
         target="_blank"
@@ -69,7 +69,7 @@ export function PhotoTile(props: CardProps) {
             src={mediaUrl}
             alt={post.body ?? `photo from ${authorName}`}
             loading="lazy"
-            className="aspect-square w-full object-cover"
+            className="h-auto w-full"
           />
         ) : (
           <div className="aspect-square w-full animate-pulse" />

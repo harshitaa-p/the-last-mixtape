@@ -70,7 +70,7 @@ export function AuthScreen() {
         className="pointer-events-none absolute inset-0"
         style={{
           background:
-            'radial-gradient(60rem 30rem at 20% -10%, rgba(232,162,74,0.22), transparent 60%), radial-gradient(50rem 30rem at 100% 100%, rgba(91,143,217,0.18), transparent 60%)',
+            'radial-gradient(60rem 30rem at 20% -10%, rgb(var(--glow-1) / 0.22), transparent 60%), radial-gradient(50rem 30rem at 100% 100%, rgb(var(--glow-2) / 0.18), transparent 60%)',
         }}
       />
       <div

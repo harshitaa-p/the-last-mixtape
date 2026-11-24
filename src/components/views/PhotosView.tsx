@@ -36,7 +36,7 @@ export function PhotosView(v: ViewProps) {
       {photos.length === 0 && !v.loading ? (
         <Empty icon={<Camera size={20} aria-hidden="true" />} text="No photos yet." />
       ) : (
-        <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6">
+        <ul className="columns-2 gap-4 sm:columns-3 xl:columns-4 2xl:columns-6">
           {photos.map((p) => (
             <PhotoTile key={p.id} {...cardProps(p, v)} />
           ))}

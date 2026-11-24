@@ -30,7 +30,7 @@ export function Screen({
   return (
     <main
       className="relative min-h-screen overflow-hidden"
-      style={warm ? { background: '#2a1f1a' } : undefined}
+      style={warm ? { background: 'var(--room-bg)' } : undefined}
     >
       <Backdrop tone={warm ? 'warm' : 'night'} />
       <div
