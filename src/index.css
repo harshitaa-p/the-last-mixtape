@@ -1,0 +1,76 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-body: 'Inter', system-ui, sans-serif;
+  --font-hand: 'Caveat', cursive;
+  --font-type: 'Courier Prime', monospace;
+  --color-wall: #1f2a3a;
+  --color-paper: #fdfaf5;
+  --color-ink: #f3ece0;
+  --color-ink-dark: #3a2c22;
+  --color-ink-soft: #9aa7b8;
+  --color-amber: #e8a24a;
+  --color-rust: #d9694a;
+  --color-paper-dark: #ece2cf;
+  --color-tape: #7a5a3f;
+}
+
+@keyframes vinyl-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes rec-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+body {
+  margin: 0;
+  background: var(--color-wall);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes bob {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-1.5deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(1.5deg);
+  }
+}
+
+.reel {
+  animation: spin 6s linear infinite;
+}
+
+.group:hover .reel-hover {
+  animation: spin 2.5s linear infinite;
+}
+
+.float {
+  animation: bob 6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reel,
+  .reel-hover,
+  .group:hover .reel-hover,
+  .float {
+    animation: none;
+  }
+}
